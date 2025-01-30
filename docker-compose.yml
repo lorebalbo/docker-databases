@@ -1,3 +1,5 @@
+name: dockerdb
+
 services:
     postgres:
         container_name: postgres
