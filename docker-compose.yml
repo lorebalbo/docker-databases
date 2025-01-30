@@ -1,0 +1,54 @@
+services:
+    postgres:
+        container_name: postgres
+        image: postgres:${DOCKER_POSTGRES_VERSION}
+        networks:
+            - db-network
+        ports:
+            - ${POSTGRES_EXT_PORT:-5432}:5432
+        expose:
+            - 5432
+        environment:
+            POSTGRES_USER: ${POSTGRES_USERNAME}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DATABASE}
+        volumes:
+            - ${DOCKER_POSTGRES_VOLUME:-postgres_volume_local}:/var/lib/postgresql/data
+        restart: always
+
+    mongodb:
+        container_name: mongodb
+        image: mongo:${DOCKER_MONGO_VERSION}
+        networks:
+            - db-network
+        ports:
+            - ${MONGO_EXT_PORT:-27017}:27017
+        volumes:
+            - ${DOCKER_MONGO_VOLUME:-mongo_volume_local}:/data/db
+        expose:
+            - 27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+        restart: always
+
+    pgadmin:
+        container_name: pgadmin
+        image: dpage/pgadmin4:${DOCKER_PGADMIN_VERSION}
+        networks:
+            - db-network
+        ports:
+            - ${PGADMIN_EXT_PORT:-8080}:80
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+        deploy:
+            replicas: ${PGADMIN_ENABLED:-0}
+
+volumes:
+    postgres_volume_local:
+    mongo_volume_local:
+
+networks:
+    db-network:
