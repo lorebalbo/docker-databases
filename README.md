@@ -2,7 +2,9 @@
 
 Set up **MySQL**, **MongoDB**, **PostgreSQL** and **pgAdmin** using Docker.
 
-## Usage
+## Usage 🐋
+
+### Setup 💧
 
 Set up the **environment variables**:
 
@@ -18,6 +20,8 @@ MYSQL_ENABLED=false
 ...
 ```
 
+## Start the services 🐳
+
 To **start** the services, run:
 
 ```bash
@@ -30,7 +34,7 @@ To start the services with a specific **environment file**, run:
 ./bin/up.sh -e path/to/your/.env
 ```
 
-### Stop the services
+### Stop the services 🌊
 
 To **stop** the services run:
 
