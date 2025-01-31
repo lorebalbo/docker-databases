@@ -1,10 +1,22 @@
 # Docker Compose Databases
 
-This project sets up PostgreSQL, MongoDB, and pgAdmin using Docker Compose.
+This project sets up PostgreSQL, MongoDB, MySQL and pgAdmin using Docker Compose.
 
 ## Usage
 
-### Start the services
+Set up the environment variables:
+
+```bash
+cp .env.example .env
+```
+
+Choose the database you want to use by setting the corresponding environment variable to `true`:
+
+```bash
+POSTGRES_ENABLED=true
+MYSQL_ENABLED=false
+...
+```
 
 To start the services, run:
 
