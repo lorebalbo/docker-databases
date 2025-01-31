@@ -1,13 +1,6 @@
 # Docker Compose Databases
 
-Set up:
-
-- MySQL,
-- MongoDB,
-- PostgreSQL and
-- pgAdmin
-
-using **Docker**.
+Set up **MySQL**, **MongoDB**, **PostgreSQL** and **pgAdmin** using Docker.
 
 ## Usage
 
@@ -17,7 +10,7 @@ Set up the **environment variables**:
 cp .env.example .env
 ```
 
-**Choose the database** you want to use by setting the corresponding environment variable to `true`:
+**Choose the databases** you want to use by setting the corresponding environment variable to `true`:
 
 ```bash
 POSTGRES_ENABLED=true
@@ -39,13 +32,13 @@ To start the services with a specific **environment file**, run:
 
 ### Stop the services
 
-To stop the services run:
+To **stop** the services run:
 
 ```bash
 ./bin/down.sh
 ```
 
-to remove also the volumes, run:
+to **remove** also the **volumes**, run:
 
 ```bash
 ./bin/down.sh -v
