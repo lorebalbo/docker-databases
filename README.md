@@ -39,8 +39,14 @@ To start the services with a specific **environment file**, run:
 
 ### Stop the services
 
-To stop the services and remove the volumes, run:
+To stop the services run:
 
 ```bash
 ./bin/down.sh
+```
+
+to remove also the volumes, run:
+
+```bash
+./bin/down.sh -v
 ```
