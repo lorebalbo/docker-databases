@@ -1,4 +1,4 @@
-# Docker Compose Databases
+# Docker Compose Databases 🐳
 
 Set up **MySQL**, **MongoDB**, **PostgreSQL** and **pgAdmin** using Docker.
 
@@ -20,7 +20,7 @@ MYSQL_ENABLED=false
 ...
 ```
 
-## Start the services 🐳
+### Start the services 🐳
 
 To **start** the services, run:
 
