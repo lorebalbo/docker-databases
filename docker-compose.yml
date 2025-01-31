@@ -1,6 +1,19 @@
 name: dockerdb
 
 services:
+    mysql:
+        container_name: mysql
+        image: mysql:${DOCKER_MYSQL_VERSION}
+        ports:
+            - ${MYSQL_EXT_PORT:-3306}:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_USER: ${MYSQL_USERNAME}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+        volumes:
+            - ${DOCKER_MYSQL_VOLUME:-mysql_volume_local}:/var/lib/mysql
+        restart: always
     postgres:
         container_name: postgres
         image: postgres:${DOCKER_POSTGRES_VERSION}
@@ -45,10 +58,10 @@ services:
         environment:
             - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
             - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
-        deploy:
-            replicas: ${PGADMIN_ENABLED:-0}
+        restart: always
 
 volumes:
+    mysql_volume_local:
     postgres_volume_local:
     mongo_volume_local:
 
