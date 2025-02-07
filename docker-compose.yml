@@ -31,8 +31,8 @@ services:
             - ${DOCKER_POSTGRES_VOLUME:-postgres_volume_local}:/var/lib/postgresql/data
         restart: always
 
-    mongodb:
-        container_name: mongodb
+    mongo:
+        container_name: mongo
         image: mongo:${DOCKER_MONGO_VERSION}
         networks:
             - db-network

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source .env
-
 # Function to check if a service is enabled
 is_service_enabled() {
     local service_enabled_var="${1}_ENABLED"
@@ -14,6 +12,7 @@ compose_command="docker compose"
 # Check if the -e or --env-file argument is passed
 if [[ "$1" == "-e" || "$1" == "--env-file" ]]; then
     if [[ -n "$2" ]]; then
+        source "$2"
         compose_command+=" --env-file $2"
     else
         echo "Error: --env-file requires a file path argument."
@@ -32,4 +31,5 @@ for var in $(compgen -A variable | grep '_ENABLED$'); do
 done
 
 # Run the docker compose command
+echo "Running docker compose command: $compose_command"
 eval "$compose_command"
