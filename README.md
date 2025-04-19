@@ -4,8 +4,6 @@ Set up **MySQL**, **MongoDB**, **PostgreSQL** and **pgAdmin** using Docker.
 
 ## Usage 🐋
 
-### Setup 💧
-
 Set up the **environment variables**:
 
 ```bash
@@ -42,8 +40,29 @@ To **stop** the services run:
 ./bin/down.sh
 ```
 
-to **remove** also the **volumes**, run:
+use the options:
+
+- `-v` or `--volumes` to remove the volumes
+- `-n` or `--networks` to remove the shared network
+- `--rmi` to remove the images of the service
+
+## Integrate in your Projects 💧
+
+Set up your `.env` with the variables of the databases you need.
+
+If you already have a `docker-compose.yml` **add the shared network** to it
+
+```yml
+...
+
+networks:
+    shared:
+        name: ${DOCKER_NETWORK_NAME:-devnet}
+        external: true
+```
+
+To **start** the services, run:
 
 ```bash
-./bin/down.sh -v
+./docker-databases/bin/up.sh -c your-project-compose.yml -e path/to/your/.env
 ```
