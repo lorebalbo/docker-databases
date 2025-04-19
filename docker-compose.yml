@@ -1,11 +1,11 @@
-name: dockerdb
+name: ${DOCKER_PROJECT_NAME:-docker-dbs}
 
 services:
     mysql:
-        container_name: mysql
+        container_name: ${DOCKER_MYSQL_CONTAINER_NAME:-mysql}
         image: mysql:${DOCKER_MYSQL_VERSION}
         ports:
-            - ${MYSQL_EXT_PORT:-3306}:3306
+            - 127.0.0.1:${MYSQL_EXT_PORT:-3306}:3306
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_USER: ${MYSQL_USERNAME}
@@ -15,12 +15,10 @@ services:
             - ${DOCKER_MYSQL_VOLUME:-mysql_volume_local}:/var/lib/mysql
         restart: always
     postgres:
-        container_name: postgres
+        container_name: ${DOCKER_POSTGRES_CONTAINER_NAME:-postgres}
         image: postgres:${DOCKER_POSTGRES_VERSION}
-        networks:
-            - db-network
         ports:
-            - ${POSTGRES_EXT_PORT:-5432}:5432
+            - 127.0.0.1:${POSTGRES_EXT_PORT:-5432}:5432
         expose:
             - 5432
         environment:
@@ -31,13 +29,23 @@ services:
             - ${DOCKER_POSTGRES_VOLUME:-postgres_volume_local}:/var/lib/postgresql/data
         restart: always
 
-    mongo:
-        container_name: mongo
-        image: mongo:${DOCKER_MONGO_VERSION}
-        networks:
-            - db-network
+    pgadmin:
+        container_name: ${DOCKER_PGADMIN_CONTAINER_NAME:-pgadmin}
+        image: dpage/pgadmin4:${DOCKER_PGADMIN_VERSION}
         ports:
-            - ${MONGO_EXT_PORT:-27017}:27017
+            - 127.0.0.1:${PGADMIN_EXT_PORT:-8080}:80
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+        volumes:
+            - ${DOCKER_PGADMIN_VOLUME:-pgadmin_volume_local}:/var/lib/pgadmin
+        restart: always
+
+    mongo:
+        container_name: ${DOCKER_MONGO_CONTAINER_NAME:-mongo}
+        image: mongo:${DOCKER_MONGO_VERSION}
+        ports:
+            - 127.0.0.1:${MONGO_EXT_PORT:-27017}:27017
         volumes:
             - ${DOCKER_MONGO_VOLUME:-mongo_volume_local}:/data/db
         expose:
@@ -48,22 +56,8 @@ services:
             MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
         restart: always
 
-    pgadmin:
-        container_name: pgadmin
-        image: dpage/pgadmin4:${DOCKER_PGADMIN_VERSION}
-        networks:
-            - db-network
-        ports:
-            - ${PGADMIN_EXT_PORT:-8080}:80
-        environment:
-            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
-            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
-        restart: always
-
 volumes:
     mysql_volume_local:
     postgres_volume_local:
     mongo_volume_local:
-
-networks:
-    db-network:
+    pgadmin_volume_local:
