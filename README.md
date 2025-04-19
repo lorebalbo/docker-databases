@@ -53,7 +53,11 @@ Set up your `.env` with the variables of the databases you need.
 If you already have a `docker-compose.yml` **add the shared network** to it
 
 ```yml
-...
+services:
+    backend:
+        ...
+        networks:
+            - shared
 
 networks:
     shared:
