@@ -1,0 +1,27 @@
+name: ${DOCKER_PROJECT_NAME:-docker-dbs}
+
+services:
+    mongo:
+        container_name: ${DOCKER_MONGO_CONTAINER_NAME:-mongo}
+        image: mongo:${DOCKER_MONGO_VERSION}
+        ports:
+            - 127.0.0.1:${MONGO_EXT_PORT:-27017}:27017
+        volumes:
+            - ${DOCKER_MONGO_VOLUME:-mongo_volume_local}:/data/db
+        expose:
+            - 27017
+        networks:
+            - shared
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+            MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+        restart: always
+
+volumes:
+    mongo_volume_local:
+
+networks:
+    shared:
+        name: ${DOCKER_NETWORK_NAME:-devnet}
+        external: true

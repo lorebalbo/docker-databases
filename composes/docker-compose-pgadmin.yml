@@ -1,0 +1,24 @@
+name: ${DOCKER_PROJECT_NAME:-docker-dbs}
+
+services:
+    pgadmin:
+        container_name: ${DOCKER_PGADMIN_CONTAINER_NAME:-pgadmin}
+        image: dpage/pgadmin4:${DOCKER_PGADMIN_VERSION}
+        ports:
+            - 127.0.0.1:${PGADMIN_EXT_PORT:-8080}:80
+        networks:
+            - shared
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+        volumes:
+            - ${DOCKER_PGADMIN_VOLUME:-pgadmin_volume_local}:/var/lib/pgadmin
+        restart: always
+
+volumes:
+    pgadmin_volume_local:
+
+networks:
+    shared:
+        name: ${DOCKER_NETWORK_NAME:-devnet}
+        external: true
