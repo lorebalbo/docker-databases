@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+
+source .env
+
 # Function to check if a service is enabled
 is_service_enabled() {
     local service_enabled_var="${1}_ENABLED"
@@ -31,5 +35,5 @@ for var in $(compgen -A variable | grep '_ENABLED$'); do
 done
 
 # Run the docker compose command
-echo "Running docker compose command: $compose_command"
+# echo "Running docker compose command: $compose_command"
 eval "$compose_command"
