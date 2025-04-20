@@ -96,7 +96,7 @@ if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
     project_name="$DOCKER_PROJECT_NAME"
 else
     # Extract the current directory name
-    project_name='composes'
+    project_name=$(basename "$PROJECT_DIR")
 fi
 
 # Add project name to compose command
