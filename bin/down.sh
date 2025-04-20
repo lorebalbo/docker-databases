@@ -13,28 +13,25 @@ show_help() {
     echo "  --rmi           Remove images used by services"
     echo "  -n, --networks  Remove the network specified in the DOCKER_NETWORK_NAME environment variable"
     echo "  -f, --file      Specify a docker-compose file to use"
+    echo "  -e, --env-file  Specify a custom environment file to use"
     echo ""
     echo "Example: down.sh --volumes --networks -f ./custom-compose.yml"
     exit 0
 }
 
-# Parse arguments and check if env-file is specified
-custom_env_file=""
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -e|--env-file)
-            if [[ -n "$2" ]]; then
-                custom_env_file="$2"
-                break
-            fi
-            ;;
-    esac
-    shift
-done
-
-# Reset positional parameters
+# Store original arguments
 ORIGINAL_ARGS=("$@")
-set -- "${ORIGINAL_ARGS[@]}"
+
+# First pass: only check for env-file
+custom_env_file=""
+for ((i=0; i<${#ORIGINAL_ARGS[@]}; i++)); do
+    if [[ "${ORIGINAL_ARGS[i]}" == "-e" || "${ORIGINAL_ARGS[i]}" == "--env-file" ]]; then
+        if [[ -n "${ORIGINAL_ARGS[i+1]}" && ! "${ORIGINAL_ARGS[i+1]}" =~ ^- ]]; then
+            custom_env_file="${ORIGINAL_ARGS[i+1]}"
+            break
+        fi
+    fi
+done
 
 # Set up the environment file - use custom if provided, otherwise default
 if [[ -n "$custom_env_file" ]]; then
@@ -47,9 +44,6 @@ else
     echo "Warning: No .env file found in $PROJECT_DIR"
 fi
 
-# Reset positional parameters for proper argument parsing
-set -- "${ORIGINAL_ARGS[@]}"
-
 # Initialize variables for options
 volumes_flag=""
 rmi_flag=""
@@ -57,40 +51,44 @@ network_flag=""
 compose_files=""
 compose_command="docker compose"
 
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
+# Second pass: process all arguments
+for ((i=0; i<${#ORIGINAL_ARGS[@]}; i++)); do
+    arg="${ORIGINAL_ARGS[i]}"
+
+    case $arg in
         -h|--help)
             show_help
             ;;
         -v|--volumes)
             volumes_flag="-v"
-            shift
             ;;
         --rmi)
             rmi_flag="--rmi"
-            shift
             ;;
         -n|--networks)
             network_flag="true"
-            shift
             ;;
         -e|--env-file)
-            if [[ -n "$2" ]]; then
-                # Already handled above, just skip
-                shift
+            # Skip the next argument (the file path)
+            ((i++))
+            ;;
+        -f|--file)
+            if [[ -n "${ORIGINAL_ARGS[i+1]}" && ! "${ORIGINAL_ARGS[i+1]}" =~ ^- ]]; then
+                compose_files="${compose_files} -f ${ORIGINAL_ARGS[i+1]}"
+                ((i++))
             else
-                echo "Error: --env-file requires a file path argument."
+                echo "Error: --file requires a file path argument."
                 exit 1
             fi
             ;;
         *)
-            echo "Error: Invalid argument $1"
-            echo "Use -h or --help to see available options."
-            exit 1
+            if [[ "$arg" =~ ^- ]]; then
+                echo "Error: Invalid argument $arg"
+                echo "Use -h or --help to see available options."
+                exit 1
+            fi
             ;;
     esac
-    shift
 done
 
 # Get project name from env variable or use current directory name as fallback
@@ -104,7 +102,13 @@ fi
 # Add project name to compose command
 compose_command+=" -p $project_name"
 
+# Add compose files if specified
+if [[ -n "$compose_files" ]]; then
+    compose_command+="$compose_files"
+fi
+
 # Run docker compose down with the appropriate flags
+echo "Running: $compose_command down $volumes_flag $rmi_flag"
 $compose_command down $volumes_flag $rmi_flag
 
 # Remove the network if -n or --networks is passed
@@ -113,5 +117,6 @@ if [ "$network_flag" == "true" ]; then
         echo "Error: DOCKER_NETWORK_NAME is not set in the environment."
         exit 1
     fi
+    echo "Removing network $DOCKER_NETWORK_NAME"
     docker network rm "$DOCKER_NETWORK_NAME" || echo "Network $DOCKER_NETWORK_NAME does not exist."
 fi
