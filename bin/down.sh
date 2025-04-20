@@ -100,9 +100,6 @@ if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
     project_name="$DOCKER_PROJECT_NAME"
 else
     # Extract the current directory name
-    echo "$PROJECT_DIR"
-    echo "$(basename $PROJECT_DIR)"
-    # project_name=$(pwd "../$PROJECT_DIR" | xargs basename)
     project_name=$(basename "$PROJECT_DIR")
 fi
 

@@ -114,7 +114,6 @@ if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
     compose_command+=" -p $DOCKER_PROJECT_NAME"
 else
     # Otherwise, use the current directory name as the project name
-    echo "$PROJECT_DIR"
     project_name=$(basename "$PROJECT_DIR")
     compose_command+=" -p $project_name"
 fi
