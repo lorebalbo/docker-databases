@@ -63,7 +63,7 @@ for ((i=0; i<${#ORIGINAL_ARGS[@]}; i++)); do
             volumes_flag="-v"
             ;;
         --rmi)
-            rmi_flag="--rmi"
+            rmi_flag="--rmi all"
             ;;
         -n|--networks)
             network_flag="true"
