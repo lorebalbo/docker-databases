@@ -1,5 +1,3 @@
-name: ${DOCKER_PROJECT_NAME:-docker-dbs}
-
 services:
     pgadmin:
         container_name: ${DOCKER_PGADMIN_CONTAINER_NAME:-pgadmin}

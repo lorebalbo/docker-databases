@@ -1,5 +1,3 @@
-name: ${DOCKER_PROJECT_NAME:-docker-dbs}
-
 services:
     mongo:
         container_name: ${DOCKER_MONGO_CONTAINER_NAME:-mongo}
