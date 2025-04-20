@@ -121,5 +121,5 @@ fi
 compose_command+=" up -d"
 
 # Run the docker compose command
-echo "Running docker compose command: $compose_command"
+# echo "Running docker compose command: $compose_command"
 eval "$compose_command"

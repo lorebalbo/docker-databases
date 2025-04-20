@@ -112,7 +112,7 @@ if [[ -n "$compose_files" ]]; then
 fi
 
 # Run docker compose down with the appropriate flags
-echo "Running: $compose_command down $volumes_flag $rmi_flag"
+# echo "Running: $compose_command down $volumes_flag $rmi_flag"
 $compose_command down $volumes_flag $rmi_flag
 
 # Remove the network if -n or --networks is passed
