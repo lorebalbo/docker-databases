@@ -68,5 +68,5 @@ networks:
 To **start** the services, run:
 
 ```bash
-./docker-databases/bin/up.sh -c your-project-compose.yml -e path/to/your/.env
+./docker-databases/bin/up.sh -f your-project-compose.yml -e path/to/your/.env
 ```
