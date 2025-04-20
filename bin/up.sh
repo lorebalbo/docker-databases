@@ -2,6 +2,18 @@
 
 set -e
 
+# Display help information
+display_help() {
+    echo "Usage: up.sh [options]"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help      Display this help message and exit"
+    echo "  -e, --env-file  Specify an environment file to use"
+    echo "  -f, --file      Specify a docker-compose file to use"
+    echo ""
+    echo "Example: up.sh -f ./custom-compose.yml -e ./custom.env"
+}
+
 source .env
 
 # Create the Docker network if it doesn't exist
@@ -18,18 +30,40 @@ is_service_enabled() {
 
 compose_command="docker compose"
 
-# Check if the -e or --env-file argument is passed
-if [[ "$1" == "-e" || "$1" == "--env-file" ]]; then
-    if [[ -n "$2" ]]; then
-        source "$2"
-        compose_command+=" --env-file $2"
-    else
-        echo "Error: --env-file requires a file path argument."
-        exit 1
-    fi
-else
-    compose_command+=" --env-file .env"
-fi
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            display_help
+            exit 0
+            ;;
+        -e|--env-file)
+            if [[ -n "$2" ]]; then
+                source "$2"
+                compose_command+=" --env-file $2"
+                shift
+            else
+                echo "Error: --env-file requires a file path argument."
+                exit 1
+            fi
+            ;;
+        -f|--file)
+            if [[ -n "$2" ]]; then
+                compose_command+=" -f $2"
+                shift
+            else
+                echo "Error: --file requires a file path argument."
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Error: Invalid argument $1"
+            echo "Use -h or --help to see available options."
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 # Find all *_ENABLED variables and conditionally add services to the command
 for var in $(compgen -A variable | grep '_ENABLED$'); do
