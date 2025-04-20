@@ -112,6 +112,10 @@ done
 # if the DOCKER_PROJECT_NAME variable is set, add -p $DOCKER_PROJECT_NAME to the command
 if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
     compose_command+=" -p $DOCKER_PROJECT_NAME"
+else
+    # Otherwise, use the current directory name as the project name
+    project_name=$(basename "$PROJECT_DIR")
+    compose_command+=" -p $project_name"
 fi
 
 compose_command+=" up -d"

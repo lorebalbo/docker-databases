@@ -19,19 +19,23 @@ show_help() {
     exit 0
 }
 
-# Store original arguments
-ORIGINAL_ARGS=("$@")
-
 # First pass: only check for env-file
 custom_env_file=""
-for ((i=0; i<${#ORIGINAL_ARGS[@]}; i++)); do
-    if [[ "${ORIGINAL_ARGS[i]}" == "-e" || "${ORIGINAL_ARGS[i]}" == "--env-file" ]]; then
-        if [[ -n "${ORIGINAL_ARGS[i+1]}" && ! "${ORIGINAL_ARGS[i+1]}" =~ ^- ]]; then
-            custom_env_file="${ORIGINAL_ARGS[i+1]}"
-            break
-        fi
-    fi
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -e|--env-file)
+            if [[ -n "$2" ]]; then
+                custom_env_file="$2"
+                shift 2
+                continue
+            fi
+            ;;
+    esac
+    shift
 done
+
+# Store original arguments
+ORIGINAL_ARGS=("$@")
 
 # Set up the environment file - use custom if provided, otherwise default
 if [[ -n "$custom_env_file" ]]; then
@@ -96,7 +100,7 @@ if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
     project_name="$DOCKER_PROJECT_NAME"
 else
     # Extract the current directory name
-    project_name=$(basename "$PROJECT_DIR")
+    project_name=$(pwd "../$PROJECT_DIR" | xargs basename)
 fi
 
 # Add project name to compose command
