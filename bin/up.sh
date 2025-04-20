@@ -2,7 +2,9 @@
 
 set -e
 
-# Display help information
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
+
 display_help() {
     echo "Usage: up.sh [options]"
     echo ""
@@ -14,7 +16,34 @@ display_help() {
     echo "Example: up.sh -f ./custom-compose.yml -e ./custom.env"
 }
 
-source .env
+# Parse arguments and check if env-file is specified
+custom_env_file=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -e|--env-file)
+            if [[ -n "$2" ]]; then
+                custom_env_file="$2"
+                break
+            fi
+            ;;
+    esac
+    shift
+done
+
+# Reset positional parameters
+ORIGINAL_ARGS=("$@")
+set -- "${ORIGINAL_ARGS[@]}"
+
+# Set up the environment file - use custom if provided, otherwise default
+if [[ -n "$custom_env_file" ]]; then
+    source "$custom_env_file"
+    ENV_FILE="$custom_env_file"
+elif [[ -f "$PROJECT_DIR/.env" ]]; then
+    source "$PROJECT_DIR/.env"
+    ENV_FILE="$PROJECT_DIR/.env"
+else
+    echo "Warning: No .env file found in $PROJECT_DIR"
+fi
 
 # Create the Docker network if it doesn't exist
 if ! docker network ls --filter name=^$DOCKER_NETWORK_NAME$ --format "{{.Name}}" | grep -w $DOCKER_NETWORK_NAME > /dev/null; then
@@ -30,6 +59,14 @@ is_service_enabled() {
 
 compose_command="docker compose"
 
+# Add env-file to compose command by default if we found an .env file
+if [[ -n "$ENV_FILE" ]]; then
+    compose_command+=" --env-file $ENV_FILE"
+fi
+
+# Reset positional parameters for proper argument parsing
+set -- "${ORIGINAL_ARGS[@]}"
+
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -39,8 +76,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -e|--env-file)
             if [[ -n "$2" ]]; then
-                source "$2"
-                compose_command+=" --env-file $2"
+                # Already handled above, just skip
                 shift
             else
                 echo "Error: --env-file requires a file path argument."
@@ -69,16 +105,16 @@ done
 for var in $(compgen -A variable | grep '_ENABLED$'); do
     service="${var%_ENABLED}"
     if is_service_enabled "$service"; then
-        compose_command+=" -f composes/docker-compose-${service,,}.yml"
+        compose_command+=" -f $PROJECT_DIR/composes/docker-compose-${service,,}.yml"
     fi
 done
-
-compose_command+=" up -d"
 
 # if the DOCKER_PROJECT_NAME variable is set, add -p $DOCKER_PROJECT_NAME to the command
 if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
     compose_command+=" -p $DOCKER_PROJECT_NAME"
 fi
+
+compose_command+=" up -d"
 
 # Run the docker compose command
 echo "Running docker compose command: $compose_command"
