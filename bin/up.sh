@@ -57,8 +57,10 @@ while [[ $# -gt 0 ]]; do
             if [[ -n "$2" ]]; then
                 custom_env_file="$2"
                 shift
+            else
+                echo "Error: --env-file requires a file path argument."
+                exit 1
             fi
-            shift
             ;;
         *)
             echo "Error: Invalid argument $1"
@@ -79,8 +81,6 @@ elif [[ -f "$PROJECT_DIR/.env" ]]; then
 else
     echo "Warning: No .env file found in $PROJECT_DIR"
 fi
-
-# echo "$compose_command"
 
 # Find all *_ENABLED variables and conditionally add services to the command
 for var in $(compgen -A variable | grep '_ENABLED$'); do
