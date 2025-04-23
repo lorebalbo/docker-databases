@@ -1,0 +1,24 @@
+services:
+    mongoexprs:
+        container_name: ${DOCKER_MONGOEXPRS_CONTAINER_NAME:-mongo-express}
+        image: mongo-express:${DOCKER_MONGOEXPRS_VERSION:-latest}
+        ports:
+            - 127.0.0.1:${MONGOEXPRS_EXT_PORT:-8081}:8081
+        networks:
+            - shared
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME}
+            ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
+            ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${DOCKER_MONGO_CONTAINER_NAME:-mongo}:27017/
+            ME_CONFIG_BASICAUTH_USERNAME: ${MONGOEXPRS_USERNAME:-admin}
+            ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRS_PASSWORD:-pass}
+            ME_CONFIG_MONGODB_PORT: ${MONGO_EXT_PORT:-27017}
+            ME_CONFIG_MONGODB_SERVER: ${DOCKER_MONGO_CONTAINER_NAME:-mongo}
+        depends_on:
+            - mongo
+        restart: always
+
+networks:
+    shared:
+        name: ${DOCKER_NETWORK_NAME:-devnet}
+        external: true
