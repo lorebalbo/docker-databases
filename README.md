@@ -1,6 +1,6 @@
 # Docker Compose Databases 🐳
 
-Set up **MySQL**, **MongoDB**, **PostgreSQL** and **pgAdmin** using Docker.
+Set up **MySQL**, **MongoDB**, **PostgreSQL**, **pgAdmin**, **MongoDB Express** and **MySQL Workbench** using Docker.
 
 ## Usage 🐋
 
@@ -26,10 +26,15 @@ To **start** the services, run:
 ./bin/up.sh
 ```
 
-To start the services with a specific **environment file**, run:
+use the options:
+- `-f` to add a custom docker-compose.yml
+- `-e` to use your own .env file
+- `--dry-run` to show the command that would be run without executing it
+
+Append any other docker compose arguments with `--`
 
 ```bash
-./bin/up.sh -e path/to/your/.env
+./bin/up.sh -- -d --build
 ```
 
 ### Stop the services 🌊
@@ -70,3 +75,14 @@ To **start** the services, run:
 ```bash
 ./docker-databases/bin/up.sh -f your-project-compose.yml -e path/to/your/.env
 ```
+
+## Available Services 🛢️
+
+| Service | Default Port | Web Interface |
+|---------|-------------|--------------|
+| MySQL | 3306 | No |
+| PostgreSQL | 5432 | No |
+| MongoDB | 27017 | No |
+| pgAdmin | 5050 | Yes - http://localhost:5050 |
+| MongoDB Express | 8081 | Yes - http://localhost:8081 |
+| MySQL Workbench | 3000 | Yes - http://localhost:3000 |
