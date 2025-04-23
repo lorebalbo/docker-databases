@@ -31,7 +31,7 @@ use the options:
 - `-e` to use your own .env file
 - `--dry-run` to show the command that would be run without executing it
 
-Append any other docker compose arguments with `--`
+**Append** any other **docker compose arguments** with `--`
 
 ```bash
 ./bin/up.sh -- -d --build
@@ -75,14 +75,3 @@ To **start** the services, run:
 ```bash
 ./docker-databases/bin/up.sh -f your-project-compose.yml -e path/to/your/.env
 ```
-
-## Available Services 🛢️
-
-| Service | Default Port | Web Interface |
-|---------|-------------|--------------|
-| MySQL | 3306 | No |
-| PostgreSQL | 5432 | No |
-| MongoDB | 27017 | No |
-| pgAdmin | 5050 | Yes - http://localhost:5050 |
-| MongoDB Express | 8081 | Yes - http://localhost:8081 |
-| MySQL Workbench | 3000 | Yes - http://localhost:3000 |
