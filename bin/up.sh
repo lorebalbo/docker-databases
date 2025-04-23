@@ -5,7 +5,7 @@ set -e
 # ------------------------------------------------------------------------------
 # Variables
 
-DEBUG=0
+DRYRUN=0
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -25,7 +25,7 @@ display_help() {
     echo ""
     echo "Options:"
     echo "  -h, --help      Display this help message and exit"
-    echo "  --debug         Enable debug mode"
+    echo "  --dry-run       Show the command that would be run without executing it"
     echo "  -e, --env-file  Specify an environment file to use"
     echo "  -f, --file      Specify a docker-compose file to use"
     echo ""
@@ -53,8 +53,8 @@ while [[ $# -gt 0 ]]; do
             display_help
             exit 0
             ;;
-        --debug)
-            DEBUG=1
+        --dry-run)
+            DRYRUN=1
             ;;
         -f|--file)
             if [[ -n "$2" ]]; then
@@ -154,7 +154,7 @@ fi
 # Run
 
 # Run the docker compose command
-if [[ $DEBUG -eq 1 ]]; then
+if [[ $DRYRUN -eq 1 ]]; then
     echo "Running docker compose command: $COMPOSE_COMMAND"
 else
     eval "$COMPOSE_COMMAND"
