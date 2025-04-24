@@ -2,42 +2,83 @@
 
 set -e
 
+# ------------------------------------------------------------------------------
+# Variables
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-show_help() {
-    echo "Usage: down.sh [OPTIONS]"
+DRYRUN=0
+
+CUSTOM_ENV_FILE=""
+NETWORK=0
+
+COMPOSE_COMMAND="docker compose"
+
+# ------------------------------------------------------------------------------
+# Utils
+
+# Help function to display usage information
+display_help() {
+    echo "Usage: down.sh [options] [-- additional docker-compose arguments]"
     echo "Options:"
     echo "  -h, --help      Display this help message and exit"
-    echo "  -v, --volumes   Remove named volumes declared in the 'volumes' section of the Compose file"
-    echo "  --rmi           Remove images used by services"
+    echo "  --dry-run       Show the command that would be run without executing it"
     echo "  -n, --networks  Remove the network specified in the DOCKER_NETWORK_NAME environment variable"
-    echo "  -f, --file      Specify a docker-compose file to use"
     echo "  -e, --env-file  Specify a custom environment file to use"
     echo ""
-    echo "Example: down.sh --volumes --networks -f ./custom-compose.yml"
-    exit 0
+    echo "Additional arguments after -- will be passed directly to docker compose"
+    echo ""
+    echo "Examples:"
+    echo "  down.sh -e ./custom.env"
+    echo "  down.sh -- --rmi all"
+    echo "  down.sh -- --volumes"
 }
 
-# First pass: only check for env-file
-custom_env_file=""
+# ------------------------------------------------------------------------------
+# Parse arguments
+
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -h|--help)
+            display_help
+            exit 0
+            ;;
+        --dry-run)
+            DRYRUN=1
+            ;;
+        -n|--networks)
+            NETWORK=1
+            ;;
         -e|--env-file)
             if [[ -n "$2" ]]; then
-                custom_env_file="$2"
-                shift 2
-                continue
+                CUSTOM_ENV_FILE="$2"
+                shift
+            else
+                echo "Error: --env-file requires a file path argument."
+                exit 1
             fi
+            ;;
+        --)
+            # Everything after -- is passed to docker compose
+            shift
+            EXTRA_ARGS="$*"
+            break
+            ;;
+        *)
+            echo "Error: Invalid argument $1"
+            echo "Use -h or --help to see available options."
+            display_help
+            exit 1
             ;;
     esac
     shift
 done
 
-# Store original arguments
-ORIGINAL_ARGS=("$@")
+# ------------------------------------------------------------------------------
+# Setup the environment
 
-# Set up the environment file - use custom if provided, otherwise default
+# Use custom .env if provided, otherwise default (.env in root of docker-databases)
 if [[ -n "$custom_env_file" ]]; then
     source "$custom_env_file"
     ENV_FILE="$custom_env_file"
@@ -48,79 +89,47 @@ else
     echo "Warning: No .env file found in $PROJECT_DIR"
 fi
 
-# Initialize variables for options
-volumes_flag=""
-rmi_flag=""
-network_flag=""
-compose_files=""
-compose_command="docker compose"
+# ------------------------------------------------------------------------------
+# Build compose
 
-# Second pass: process all arguments
-for ((i=0; i<${#ORIGINAL_ARGS[@]}; i++)); do
-    arg="${ORIGINAL_ARGS[i]}"
-
-    case $arg in
-        -h|--help)
-            show_help
-            ;;
-        -v|--volumes)
-            volumes_flag="-v"
-            ;;
-        --rmi)
-            rmi_flag="--rmi all"
-            ;;
-        -n|--networks)
-            network_flag="true"
-            ;;
-        -e|--env-file)
-            # Skip the next argument (the file path)
-            ((i++))
-            ;;
-        -f|--file)
-            if [[ -n "${ORIGINAL_ARGS[i+1]}" && ! "${ORIGINAL_ARGS[i+1]}" =~ ^- ]]; then
-                compose_files="${compose_files} -f ${ORIGINAL_ARGS[i+1]}"
-                ((i++))
-            else
-                echo "Error: --file requires a file path argument."
-                exit 1
-            fi
-            ;;
-        *)
-            if [[ "$arg" =~ ^- ]]; then
-                echo "Error: Invalid argument $arg"
-                echo "Use -h or --help to see available options."
-                exit 1
-            fi
-            ;;
-    esac
-done
-
-# Get project name from env variable or use current directory name as fallback
+# Add compose name
+# Use DOCKER_COMPOSE_NAME variable is set, if not, use use the name of the $PROJECT_DIR
 if [[ -n "$DOCKER_PROJECT_NAME" ]]; then
-    project_name="$DOCKER_PROJECT_NAME"
+    COMPOSE_COMMAND+=" -p $DOCKER_PROJECT_NAME"
 else
-    # Extract the current directory name
     project_name=$(basename "$PROJECT_DIR")
+    COMPOSE_COMMAND+=" -p $project_name"
 fi
 
-# Add project name to compose command
-compose_command+=" -p $project_name"
+# Down
+COMPOSE_COMMAND+=" down"
 
-# Add compose files if specified
-if [[ -n "$compose_files" ]]; then
-    compose_command+="$compose_files"
+# Append any extra arguments
+if [[ -n "$EXTRA_ARGS" ]]; then
+    COMPOSE_COMMAND+=" $EXTRA_ARGS"
 fi
 
-# Run docker compose down with the appropriate flags
-# echo "Running: $compose_command down $volumes_flag $rmi_flag"
-$compose_command down $volumes_flag $rmi_flag
+# ------------------------------------------------------------------------------
+# Run
+
+# Run the docker compose command
+if [[ $DRYRUN -eq 1 ]]; then
+    echo "Running docker compose command: $COMPOSE_COMMAND"
+else
+    eval "$COMPOSE_COMMAND"
+fi
 
 # Remove the network if -n or --networks is passed
-if [ "$network_flag" == "true" ]; then
+if [ "$NETWORK" -eq 1 ]; then
     if [ -z "$DOCKER_NETWORK_NAME" ]; then
         echo "Error: DOCKER_NETWORK_NAME is not set in the environment."
         exit 1
     fi
-    echo "Removing network $DOCKER_NETWORK_NAME"
-    docker network rm "$DOCKER_NETWORK_NAME" || echo "Network $DOCKER_NETWORK_NAME does not exist."
+
+    if [[ $DRYRUN -eq 1 ]]; then
+        echo "Running docker network command: docker network rm $DOCKER_NETWORK_NAME"
+    else
+        echo "Removing network $DOCKER_NETWORK_NAME"
+        docker network rm "$DOCKER_NETWORK_NAME" || echo "Network $DOCKER_NETWORK_NAME does not exist."
+    fi
 fi
