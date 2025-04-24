@@ -14,7 +14,9 @@ cp .env.example .env
 
 ```bash
 POSTGRES_ENABLED=true
-MYSQL_ENABLED=false
+PGADMIN_ENABLED=true
+MONGO_ENABLED=false
+MONGOEXPRS_ENABLED=false
 ...
 ```
 
@@ -31,10 +33,10 @@ use the options:
 - `-e` to use your own .env file
 - `--dry-run` to show the command that would be run without executing it
 
-**Append** any other **docker compose arguments** with `--`
+Append any **other compose arguments** with `--`
 
 ```bash
-./bin/up.sh -- -d --build
+./bin/up.sh -e .env.test -- -d --build
 ```
 
 ### Stop the services 🌊
@@ -47,9 +49,14 @@ To **stop** the services run:
 
 use the options:
 
-- `-v` or `--volumes` to remove the volumes
 - `-n` or `--networks` to remove the shared network
-- `--rmi` to remove the images of the service
+- `--dry-run` to show the command that would be run without executing it
+
+Append any **other compose arguments** with `--`
+
+```bash
+./bin/up.sh -n -- -d --volumes
+```
 
 ## Integrate in your Projects 💧
 
@@ -58,6 +65,8 @@ Set up your `.env` with the variables of the databases you need.
 If you already have a `docker-compose.yml` **add the shared network** to it
 
 ```yml
+# ./your-project-compose.yml
+
 services:
     backend:
         ...
@@ -73,5 +82,13 @@ networks:
 To **start** the services, run:
 
 ```bash
-./docker-databases/bin/up.sh -f your-project-compose.yml -e path/to/your/.env
+./docker-databases/bin/up.sh -f your-project-compose.yml -e path/to/your/.env -- -d
 ```
+
+Use the `DOCKER_PROJECT_NAME` to perform action on the compose's active services
+
+```bash
+docker compose -p DOCKER_PROJECT_NAME ps
+```
+
+If `DOCKER_PROJECT_NAME` is not set in your `.env` the project name is the root directory.
