@@ -134,7 +134,7 @@ if [[ -n "$ENV_FILE" ]]; then
     COMPOSE_COMMAND+=" --env-file $ENV_FILE"
 fi
 
-# Run and detach
+# Up
 COMPOSE_COMMAND+=" up"
 
 # Append any extra arguments
