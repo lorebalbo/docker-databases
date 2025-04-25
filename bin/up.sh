@@ -125,7 +125,8 @@ fi
 for var in $(compgen -A variable | grep '_ENABLED$'); do
     service="${var%_ENABLED}"
     if is_service_enabled "$service"; then
-        COMPOSE_COMMAND+=" -f $PROJECT_DIR/composes/docker-compose-${service,,}.yml"
+        service_lowercase=$(echo "$service" | tr '[:upper:]' '[:lower:]')
+        compose_command+=" -f $PROJECT_DIR/composes/docker-compose-${service_lowercase}.yml"
     fi
 done
 
