@@ -58,7 +58,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -f|--file)
             if [[ -n "$2" ]]; then
-                FILE=" -f $2"
+                FILE="$2"
                 shift
             else
                 echo "Error: --file requires a file path argument."
