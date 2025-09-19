@@ -1,22 +1,22 @@
 services:
     pgadmin:
-        container_name: ${DOCKER_PGADMIN_CONTAINER_NAME:-pgadmin}
+        container_name: ${DOCKER_PGADMIN_CONTAINER_NAME}
         image: dpage/pgadmin4:${DOCKER_PGADMIN_VERSION}
         ports:
-            - 127.0.0.1:${PGADMIN_EXT_PORT:-8080}:80
+            - 127.0.0.1:${PGADMIN_EXT_PORT}:80
         networks:
             - shared
         environment:
             - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
             - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
         volumes:
-            - ${DOCKER_PGADMIN_VOLUME:-pgadmin_volume_local}:/var/lib/pgadmin
+            - pgadmin_volume:/var/lib/pgadmin
         restart: always
 
 volumes:
-    pgadmin_volume_local:
+    pgadmin_volume:
 
 networks:
     shared:
-        name: ${DOCKER_NETWORK_NAME:-devnet}
+        name: ${DOCKER_NETWORK_NAME}
         external: true

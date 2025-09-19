@@ -1,29 +1,29 @@
 services:
     mysqlwb:
-        container_name: ${DOCKER_MYSQLWB_CONTAINER_NAME:-mysql-workbench}
-        image: linuxserver/mysql-workbench:${DOCKER_MYSQLWB_VERSION:-latest}
+        container_name: ${DOCKER_MYSQLWB_CONTAINER_NAME}
+        image: linuxserver/mysql-workbench:${DOCKER_MYSQLWB_VERSION}
         ports:
-            - 127.0.0.1:${MYSQLWB_EXT_PORT:-3000}:3000
+            - 127.0.0.1:${MYSQLWB_EXT_PORT}:3000
         networks:
             - shared
         environment:
             - PUID=1000
             - PGID=1000
-            - TZ=${TZ:-Etc/UTC}
-            - MYSQL_HOST=${DOCKER_MYSQL_CONTAINER_NAME:-mysql}
-            - MYSQL_PORT=${MYSQL_PORT:-3306}
-            - MYSQL_USER=${MYSQL_USERNAME:-mysql}
-            - MYSQL_PASSWORD=${MYSQL_PASSWORD:-mysqlpass}
+            - TZ=${TZ}
+            - MYSQL_HOST=${DOCKER_MYSQL_CONTAINER_NAME}
+            - MYSQL_PORT=${MYSQL_PORT}
+            - MYSQL_USER=${MYSQL_USERNAME}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
         volumes:
-            - ${DOCKER_MYSQLWB_VOLUME:-mysqlwb_volume_local}:/config
+            - mysqlwb_volume:/config
         restart: always
         depends_on:
             - mysql
 
 volumes:
-    mysqlwb_volume_local:
+    mysqlwb_volume:
 
 networks:
     shared:
-        name: ${DOCKER_NETWORK_NAME:-devnet}
+        name: ${DOCKER_NETWORK_NAME}
         external: true

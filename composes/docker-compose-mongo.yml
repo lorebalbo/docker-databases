@@ -1,11 +1,11 @@
 services:
     mongo:
-        container_name: ${DOCKER_MONGO_CONTAINER_NAME:-mongo}
+        container_name: ${DOCKER_MONGO_CONTAINER_NAME}
         image: mongo:${DOCKER_MONGO_VERSION}
         ports:
-            - 127.0.0.1:${MONGO_EXT_PORT:-27017}:27017
+            - 127.0.0.1:${MONGO_EXT_PORT}:27017
         volumes:
-            - ${DOCKER_MONGO_VOLUME:-mongo_volume_local}:/data/db
+            - mongo_volume:/data/db
         expose:
             - 27017
         networks:
@@ -17,9 +17,9 @@ services:
         restart: always
 
 volumes:
-    mongo_volume_local:
+    mongo_volume:
 
 networks:
     shared:
-        name: ${DOCKER_NETWORK_NAME:-devnet}
+        name: ${DOCKER_NETWORK_NAME}
         external: true
