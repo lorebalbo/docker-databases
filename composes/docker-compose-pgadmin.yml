@@ -12,6 +12,8 @@ services:
         volumes:
             - pgadmin_volume:/var/lib/pgadmin
         restart: always
+        depends_on:
+            - postgres
 
 volumes:
     pgadmin_volume:
