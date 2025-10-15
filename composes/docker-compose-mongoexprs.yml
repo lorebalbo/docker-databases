@@ -14,11 +14,11 @@ services:
             ME_CONFIG_BASICAUTH_PASSWORD: ${MONGOEXPRS_PASSWORD}
             ME_CONFIG_MONGODB_PORT: ${MONGO_EXT_PORT}
             ME_CONFIG_MONGODB_SERVER: ${DOCKER_MONGO_CONTAINER_NAME}
-        depends_on:
-            - mongo
         volumes:
             - mongoexprs_volume:/data/db
         restart: always
+        depends_on:
+            - mongo
 
 volumes:
     mongoexprs_volume:
